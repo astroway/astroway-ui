@@ -1,4 +1,4 @@
-import { AwElement, escapeHtml, type ApiRequest } from './base.ts';
+import { AwElement, escapeHtml, type ApiRequest, define } from './base.ts';
 
 interface PlanetOfDay {
   date: string; planet: string; glyph: string; weekday: string; themes: string[];
@@ -26,4 +26,4 @@ export class AwPlanetOfDay extends AwElement<PlanetOfDay> {
   }
 }
 
-if (!customElements.get('aw-planet-of-day')) customElements.define('aw-planet-of-day', AwPlanetOfDay);
+define('aw-planet-of-day', AwPlanetOfDay);

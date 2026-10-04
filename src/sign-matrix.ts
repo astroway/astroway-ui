@@ -1,5 +1,5 @@
 import { SIGN_GLYPH } from '@astroway/render';
-import { AwElement, escapeHtml, type ApiRequest } from './base.ts';
+import { AwElement, escapeHtml, type ApiRequest, define } from './base.ts';
 
 interface Pair { signA: string; signB: string; relation: string; tone: string }
 interface Matrix {
@@ -52,4 +52,4 @@ export class AwSignMatrix extends AwElement<Matrix> {
   }
 }
 
-if (!customElements.get('aw-sign-matrix')) customElements.define('aw-sign-matrix', AwSignMatrix);
+define('aw-sign-matrix', AwSignMatrix);

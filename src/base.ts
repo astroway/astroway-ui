@@ -17,7 +17,7 @@ export class AwError extends Error {
   }
 }
 
-const BASE_ATTRIBUTES = ['lang', 'theme', 'size', 'key', 'api'];
+const BASE_ATTRIBUTES = ['lang', 'theme', 'size', 'key', 'api-key', 'api', 'data'];
 
 /* A secret key in page source is readable by every visitor, so it is refused before any request leaves. */
 export function checkBrowserKey(key: string | null): string | null {
@@ -25,7 +25,7 @@ export function checkBrowserKey(key: string | null): string | null {
   if (/^aw_(live|test)_/.test(key)) {
     throw new AwError('This is a secret aw_ key. Never put it in a page: create a publishable pk_ key for this site in the dashboard.', 'key');
   }
-  if (!key.startsWith('pk_')) throw new AwError('The key attribute takes a publishable pk_ key.', 'key');
+  if (!key.startsWith('pk_')) throw new AwError('The api-key attribute takes a publishable pk_ key.', 'key');
   return key;
 }
 
@@ -33,9 +33,11 @@ function retryAfter(res: Response, body: unknown): number | undefined {
   const header = Number(res.headers.get('retry-after'));
   if (Number.isFinite(header) && header > 0) return header;
   const msg = String((body as { error?: { message?: string } })?.error?.message ?? '');
-  const m = /again in (\d+)s/.exec(msg);
+  const m = /\bin (\d+)\s*s\b/i.exec(msg);
   return m ? Number(m[1]) : undefined;
 }
+
+const inflight = new Map<string, Promise<{ data: unknown; footer?: string }>>();
 
 function cacheGet(id: string): unknown {
   try {
@@ -54,7 +56,15 @@ function cacheSet(id: string, value: unknown): void {
   }
 }
 
-export abstract class AwElement<T = unknown> extends HTMLElement {
+/* On a server render (Next.js, Nuxt, Astro) the module is evaluated with no DOM; the
+   element then stays a plain tag in the HTML and upgrades once the browser loads it. */
+const ElementBase = (typeof HTMLElement === 'undefined' ? class {} : HTMLElement) as typeof HTMLElement;
+
+export function define(name: string, ctor: CustomElementConstructor): void {
+  if (typeof customElements !== 'undefined' && !customElements.get(name)) customElements.define(name, ctor);
+}
+
+export abstract class AwElement<T = unknown> extends ElementBase {
   static get observedAttributes(): string[] {
     return BASE_ATTRIBUTES;
   }
@@ -126,8 +136,9 @@ export abstract class AwElement<T = unknown> extends HTMLElement {
   async update(): Promise<void> {
     const run = ++this.#run;
     try {
-      if (this.#data !== undefined) {
-        this.paint(this.draw(this.#data));
+      const given = this.#data ?? this.dataAttribute();
+      if (given !== undefined) {
+        this.paint(this.draw(given));
         return;
       }
       const req = this.request();
@@ -145,9 +156,22 @@ export abstract class AwElement<T = unknown> extends HTMLElement {
     }
   }
 
+  /* A server render (React SSR, PHP, WordPress) can only write strings, and React does not
+     set object props on a custom element it hydrates, so layer A also reads JSON from the attribute. */
+  private dataAttribute(): T | undefined {
+    const raw = this.getAttribute('data');
+    if (raw === null) return undefined;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      throw new AwError('The data attribute is not valid JSON.', 'error');
+    }
+  }
+
   protected async fetchData(req: ApiRequest): Promise<{ data: unknown; footer?: string }> {
-    const key = req.layer === 'C' ? checkBrowserKey(this.getAttribute('key')) : null;
-    if (req.layer === 'C' && !key) throw new AwError('This element needs a publishable pk_ key in its key attribute.', 'key');
+    // React reserves `key` and never passes it to the element, so `api-key` is the spelling that works everywhere.
+    const key = req.layer === 'C' ? checkBrowserKey(this.getAttribute('api-key') ?? this.getAttribute('key')) : null;
+    if (req.layer === 'C' && !key) throw new AwError('This element needs a publishable pk_ key in its api-key attribute.', 'key');
     const base = (this.getAttribute('api') || DEFAULT_API).replace(/\/+$/, '');
     const sep = req.path.includes('?') ? '&' : '?';
     const url = `${base}${req.path}${sep}lang=${encodeURIComponent(this.language)}`;
@@ -155,11 +179,27 @@ export abstract class AwElement<T = unknown> extends HTMLElement {
     const cacheId = `aw:${url}:${body ?? ''}`;
     const cached = cacheGet(cacheId) as { data: unknown; footer?: string } | undefined;
     if (cached) return cached;
+    // Elements drawn from the same chart mount together; one request, not one charge each.
+    let pending = inflight.get(cacheId);
+    if (!pending) {
+      pending = this.send(url, req, body, key, cacheId).finally(() => inflight.delete(cacheId));
+      inflight.set(cacheId, pending);
+    }
+    return pending;
+  }
 
+  private async send(url: string, req: ApiRequest, body: string | undefined, key: string | null, cacheId: string): Promise<{ data: unknown; footer?: string }> {
     const headers: Record<string, string> = {};
     if (body) headers['Content-Type'] = 'application/json';
     if (key) headers['X-Api-Key'] = key;
-    const res = await fetch(url, { method: req.method ?? (body ? 'POST' : 'GET'), headers, body });
+    let res: Response;
+    try {
+      res = await fetch(url, { method: req.method ?? (body ? 'POST' : 'GET'), headers, body });
+    } catch {
+      // A refused origin comes back without CORS headers, so the browser shows only a network error.
+      if (key) throw new AwError("The request was blocked. Check that this site's origin is in the key's allowed origins.", 'key');
+      throw new AwError('Could not reach the AstroWay API.', 'error');
+    }
     let json: { ok?: boolean; data?: unknown; _footer?: string; error?: { message?: string } } = {};
     try {
       json = await res.json();

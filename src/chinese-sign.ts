@@ -1,4 +1,4 @@
-import { AwElement, escapeHtml, type ApiRequest } from './base.ts';
+import { AwElement, escapeHtml, type ApiRequest, define } from './base.ts';
 import { CHART_ATTRIBUTES, chartRequest } from './chart-request.ts';
 
 interface ChineseSign {
@@ -37,4 +37,4 @@ export class AwChineseSign extends AwElement<ChineseSign> {
   }
 }
 
-if (!customElements.get('aw-chinese-sign')) customElements.define('aw-chinese-sign', AwChineseSign);
+define('aw-chinese-sign', AwChineseSign);

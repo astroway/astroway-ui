@@ -1,4 +1,4 @@
-import { AwElement, escapeHtml, type ApiRequest } from './base.ts';
+import { AwElement, escapeHtml, type ApiRequest, define } from './base.ts';
 import { CHART_ATTRIBUTES, chartRequest } from './chart-request.ts';
 
 interface Synastry {
@@ -30,10 +30,10 @@ export class AwSynastryScore extends AwElement<Synastry> {
         + `<span class="bar"><span style="width:${s.score === null ? 0 : value}%"></span></span>`
         + `<span class="v">${s.score === null ? '–' : value}</span></li>`;
     }).join('');
-    return `<style>:host{display:block}.score{font-size:2.6em;font-weight:700;text-align:center;line-height:1;color:var(--aw-accent,#0b5fbf)}.label{text-align:center;margin:.2em 0 .8em;opacity:.8}ul{list-style:none;margin:0;padding:0;display:grid;gap:.35em}li{display:grid;grid-template-columns:minmax(6em,auto) 1fr 2.2em;gap:.5em;align-items:center;font-size:.9em}.bar{height:.5em;border-radius:999px;background:var(--aw-bg-soft,rgba(127,127,127,.15));overflow:hidden}.bar span{display:block;height:100%;background:var(--aw-accent,#0b5fbf)}.v{text-align:right;font-variant-numeric:tabular-nums}</style>`
+    return `<style>:host{display:block}.score{font-size:2.6em;font-weight:700;text-align:center;line-height:1;color:var(--aw-accent,#0b5fbf)}.label{text-align:center;margin:.2em 0 .8em;opacity:.8}ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:auto 1fr 2.2em;gap:.35em .5em;font-size:.9em}li{display:grid;grid-column:1/-1;grid-template-columns:subgrid;align-items:center}.bar{height:.5em;border-radius:999px;background:var(--aw-bg-soft,rgba(127,127,127,.15));overflow:hidden}.bar span{display:block;height:100%;background:var(--aw-accent,#0b5fbf)}.v{text-align:right;font-variant-numeric:tabular-nums}</style>`
       + `<div part="score" class="score">${d.score}</div>`
       + `<div part="label" class="label">${escapeHtml(L.label ?? d.label)}</div><ul>${spheres}</ul>`;
   }
 }
 
-if (!customElements.get('aw-synastry-score')) customElements.define('aw-synastry-score', AwSynastryScore);
+define('aw-synastry-score', AwSynastryScore);

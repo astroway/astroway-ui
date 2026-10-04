@@ -1,5 +1,5 @@
 import { renderWesternWheel, type WheelInput } from '@astroway/render/wheel-western';
-import { AwElement, type ApiRequest } from './base.ts';
+import { AwElement, type ApiRequest, define } from './base.ts';
 import { CHART_ATTRIBUTES, chartRequest } from './chart-request.ts';
 
 /**
@@ -26,4 +26,4 @@ export class AwNatalWheel extends AwElement<WheelInput> {
   }
 }
 
-if (!customElements.get('aw-natal-wheel')) customElements.define('aw-natal-wheel', AwNatalWheel);
+define('aw-natal-wheel', AwNatalWheel);

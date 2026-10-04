@@ -27,6 +27,8 @@ Or from a CDN, no build step:
 document.querySelector('aw-natal-wheel').data = chartFromYourServer; // a /v1/chart response
 ```
 
+A server template can write the same JSON into the attribute instead: `<aw-natal-wheel data='<?= json_encode($chart) ?>'>`.
+
 **B. Keyless.** Elements backed by `/v1/public/*` need no key. They share the visitor's public budget of 30 units an hour; `aw-synastry-score` costs 3.
 
 ```html
@@ -35,12 +37,28 @@ document.querySelector('aw-natal-wheel').data = chartFromYourServer; // a /v1/ch
 <aw-tarot-spread spread="three-card"></aw-tarot-spread>
 ```
 
-**C. Publishable key.** Elements backed by keyed endpoints take a `pk_` key created for your site in the dashboard, with its origin list, credit cap and endpoint scope. A secret `aw_` key is refused before any request is made.
+**C. Publishable key.** Elements backed by keyed endpoints take a `pk_` key created for your site in the dashboard, with its origin list, credit cap and endpoint scope. A secret `aw_` key is refused before any request is made. `key` works too, outside React.
 
 ```html
-<aw-natal-wheel key="pk_live_..." date="1990-05-15" time="14:30"
+<aw-natal-wheel api-key="pk_live_..." date="1990-05-15" time="14:30"
   latitude="50.45" longitude="30.52" timezone-offset="3"></aw-natal-wheel>
 ```
+
+## React and Next.js
+
+React 19 renders custom elements directly. Two things differ from plain HTML: React keeps `key` for itself, so pass the key as `api-key`; and on a server-rendered page pass layer A data as a string, because React drops object props on the server and does not set them while hydrating.
+
+```tsx
+'use client';
+import '@astroway/ui/natal-wheel';
+import '@astroway/ui/jsx'; // types the <aw-*> tags for TypeScript
+
+export default function Chart({ chart }: { chart: unknown }) {
+  return <aw-natal-wheel data={JSON.stringify(chart)} />;
+}
+```
+
+The modules can be imported on the server: the tag goes out as plain HTML and draws once the browser loads the element.
 
 ## Elements
 
@@ -56,6 +74,8 @@ document.querySelector('aw-natal-wheel').data = chartFromYourServer; // a /v1/ch
 | `aw-sign-matrix` | A, B | `/v1/public/compatibility/matrix` |
 | `aw-synastry-score` | A, B | `/v1/public/synastry` |
 | `aw-chinese-sign` | A, C | `/v1/chinese/zodiac/animal` + `/v1/public/chinese/zodiac/texts` |
+
+`aw-aspect-grid` is about 560 px wide at its own size; in a narrower column it scales down and the orb labels get small. Add `scroll` to keep it at full size with horizontal scrolling instead.
 
 Common attributes: `lang` (21 languages, falls back to the page's `<html lang>`), `theme` (`light`, `dark`), `size`. Theme with CSS custom properties: `--aw-accent`, `--aw-fg`, `--aw-bg`, `--aw-bg-soft`, `--aw-border`. Each element emits `aw-error` with `{ kind, message }`, where `kind` is `error`, `rate-limited` or `key`.
 

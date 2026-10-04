@@ -1,4 +1,4 @@
-import { AwElement, escapeHtml, type ApiRequest } from './base.ts';
+import { AwElement, escapeHtml, type ApiRequest, define } from './base.ts';
 
 interface Horoscope { sign: string; date: string; period: string; horoscope: string }
 
@@ -50,4 +50,4 @@ export class AwHoroscope extends AwElement<Horoscope> {
   }
 }
 
-if (!customElements.get('aw-horoscope')) customElements.define('aw-horoscope', AwHoroscope);
+define('aw-horoscope', AwHoroscope);

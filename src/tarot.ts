@@ -1,4 +1,4 @@
-import { AwElement, escapeHtml, type ApiRequest } from './base.ts';
+import { AwElement, escapeHtml, type ApiRequest, define } from './base.ts';
 
 interface Side { keywords: string[]; meaning: string }
 interface Drawn { position: { index: number; name: string; meaning: string }; card: { slug: string; name: string; upright: Side; reversed: Side }; reversed: boolean }
@@ -49,5 +49,5 @@ export class AwTarotSpread extends AwTarotCard {
   }
 }
 
-if (!customElements.get('aw-tarot-card')) customElements.define('aw-tarot-card', AwTarotCard);
-if (!customElements.get('aw-tarot-spread')) customElements.define('aw-tarot-spread', AwTarotSpread);
+define('aw-tarot-card', AwTarotCard);
+define('aw-tarot-spread', AwTarotSpread);

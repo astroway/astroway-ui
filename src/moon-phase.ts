@@ -1,5 +1,5 @@
 import { renderMoonPhase } from '@astroway/render/moon-phase';
-import { AwElement, escapeHtml, type ApiRequest } from './base.ts';
+import { AwElement, escapeHtml, type ApiRequest, define } from './base.ts';
 
 export interface MoonPhaseData {
   illuminationFraction: number;
@@ -38,4 +38,4 @@ export class AwMoonPhase extends AwElement<MoonPhaseData> {
   }
 }
 
-if (!customElements.get('aw-moon-phase')) customElements.define('aw-moon-phase', AwMoonPhase);
+define('aw-moon-phase', AwMoonPhase);

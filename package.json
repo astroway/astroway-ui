@@ -1,29 +1,65 @@
 {
   "name": "@astroway/ui",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "Astrology web components drawn with the same code as the AstroWay API: natal wheel, moon phase and more. Plain custom elements, any framework or none.",
   "type": "module",
-  "sideEffects": ["./dist/*.js"],
+  "sideEffects": [
+    "./dist/*.js"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./*": { "types": "./dist/*.d.ts", "import": "./dist/*.js" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
   },
-  "files": ["dist", "README.md", "CHANGELOG.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "node scripts/build.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:live": "LIVE=1 vitest run tests/live.test.ts"
   },
-  "keywords": ["astrology", "web-components", "custom-elements", "natal-chart", "moon-phase", "astroway"],
+  "keywords": [
+    "astrology",
+    "web-components",
+    "custom-elements",
+    "natal-chart",
+    "moon-phase",
+    "astroway"
+  ],
   "license": "MIT",
   "author": "AstroWay <astroway.info@gmail.com>",
-  "repository": { "type": "git", "url": "git+https://github.com/astroway/astroway-ui.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/astroway/astroway-ui.git"
+  },
   "homepage": "https://api.astroway.info/docs/",
-  "engines": { "node": ">=20" },
-  "publishConfig": { "access": "public", "provenance": true },
-  "dependencies": { "@astroway/render": "^0.1.1" },
-  "devDependencies": { "esbuild": "^0.27.7", "happy-dom": "^20.0.0", "typescript": "^5.9.3", "vitest": "^3.2.4" }
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {
+    "@astroway/render": "^0.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "esbuild": "^0.27.7",
+    "happy-dom": "^20.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
 }
