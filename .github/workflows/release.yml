@@ -40,7 +40,14 @@ jobs:
         with:
           subject-path: dist/**/*
       - name: Publish to npm (OIDC trusted publishing)
-        # A prerelease version goes out under `next`, so `latest` keeps pointing at a stable one.
-        run: npm publish --provenance --access public --tag "$(node -p "require('./package.json').version.includes('-') ? 'next' : 'latest'")"
+        # A prerelease goes out under `next` once a stable version holds `latest`; before that it is `latest` too,
+        # or `npm i @astroway/ui` keeps installing the previous alpha.
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          LATEST=$(npm view @astroway/ui dist-tags.latest 2>/dev/null || true)
+          TAG=latest
+          case "$VERSION" in *-*) case "$LATEST" in ''|*-*) ;; *) TAG=next ;; esac ;; esac
+          echo "publishing $VERSION under $TAG (current latest: ${LATEST:-none})"
+          npm publish --provenance --access public --tag "$TAG"
         # NB: no NODE_AUTH_TOKEN: npm verifies OIDC token from id-token: write
         # permission against the configured Trusted Publisher on npm side.
