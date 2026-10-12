@@ -227,6 +227,8 @@ const BASE_CSS = `
 :host { display: inline-block; color: var(--aw-fg, inherit); font-family: var(--aw-font, system-ui, sans-serif); }
 :host([hidden]) { display: none; }
 svg { display: block; max-width: 100%; height: auto; }
+/* The renderers' square background would show as a box on any page that is not their exact colour. */
+svg > rect:first-of-type { fill: var(--aw-chart-bg, transparent); }
 .state { padding: .75em 1em; border-radius: 8px; background: var(--aw-bg-soft, rgba(127,127,127,.08)); font-size: .9em; }
 .error, .key { color: var(--aw-danger, #b42318); }
 .rate-limited { color: var(--aw-warning, #9a6700); }

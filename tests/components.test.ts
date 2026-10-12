@@ -86,6 +86,16 @@ describe('layer B: keyless public route', () => {
   });
 });
 
+describe('theme', () => {
+  // The renderers paint a near-black square in the dark theme; on a page that is not that exact black it shows as a box.
+  it('lets the page show through the chart background, overridable with --aw-chart-bg', async () => {
+    const el = mount('<aw-moon-phase theme="dark"></aw-moon-phase>');
+    (el as unknown as { data: unknown }).data = { illuminationFraction: 0.4, waxing: false, phaseName: 'x', date: '2026-10-04' };
+    await settle(); await settle();
+    expect(el.shadowRoot!.querySelector('style')!.textContent).toContain('svg > rect:first-of-type { fill: var(--aw-chart-bg, transparent); }');
+  });
+});
+
 describe('layer A as an attribute', () => {
   // A server render (React SSR, PHP, WordPress) can only write strings into HTML.
   it('reads a JSON string in the data attribute, with no request', async () => {

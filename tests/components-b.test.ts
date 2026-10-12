@@ -78,18 +78,30 @@ describe('layer B elements call their public route with no key and use localized
 });
 
 describe('aw-chinese-sign', () => {
-  it('takes the animal with the pk_ key, then the keyless texts', async () => {
+  it('needs only a date and no key: both calls are keyless', async () => {
     const f = routes({
-      '/chinese/zodiac/animal': { animal: 'Horse', animalName: 'Кінь', glyph: '🐎', element: { fixed: 'Fire', fixedName: 'Вогонь', yin: false } },
+      '/public/chinese/zodiac/animal': { animal: 'Horse', animalName: 'Кінь', glyph: '🐎', element: { fixed: 'Fire', fixedName: 'Вогонь', yin: false } },
       '/public/chinese/zodiac/texts': { animals: { horse: { name: 'Кінь', character: 'Волелюбний', strengths: 'Енергійний', caution: 'Нетерплячий' } } },
     });
     vi.stubGlobal('fetch', f);
-    const el = mount('<aw-chinese-sign key="pk_live_x" date="1990-05-15" latitude="50.45" longitude="30.52" lang="uk"></aw-chinese-sign>');
-    await settle();
+    const el = mount('<aw-chinese-sign date="1990-05-15" lang="uk"></aw-chinese-sign>');
+    await settle(); await settle();
     const [first, second] = f.mock.calls as unknown as [string, RequestInit][];
-    expect((first[1].headers as Record<string, string>)['X-Api-Key']).toBe('pk_live_x');
+    expect(new URL(first[0]).pathname).toBe('/v1/public/chinese/zodiac/animal');
+    // The year turns at Li Chun, so a clock the caller did not give is not invented.
+    expect(JSON.parse(String(first[1].body))).toEqual({ date: '1990-05-15' });
+    expect((first[1].headers as Record<string, string>)['X-Api-Key']).toBeUndefined();
     expect((second[1].headers as Record<string, string>)['X-Api-Key']).toBeUndefined();
     expect(el.shadowRoot!.textContent).toContain('Волелюбний');
+  });
+
+  it('sends time and offset when the page gives them', async () => {
+    const f = routes({ '/public/chinese/zodiac/animal': { animal: 'Snake', glyph: '🐍', element: { fixed: 'Fire', yin: true } }, '/public/chinese/zodiac/texts': { animals: {} } });
+    vi.stubGlobal('fetch', f);
+    mount('<aw-chinese-sign date="1990-02-04" time="09:30" timezone-offset="8"></aw-chinese-sign>');
+    await settle(); await settle();
+    const [first] = f.mock.calls as unknown as [string, RequestInit][];
+    expect(JSON.parse(String(first[1].body))).toEqual({ date: '1990-02-04', time: '09:30:00', timezoneOffset: 8 });
   });
 });
 

@@ -73,11 +73,11 @@ The modules can be imported on the server: the tag goes out as plain HTML and dr
 | `aw-tarot-card`, `aw-tarot-spread` | A, B | `/v1/public/tarot/*` |
 | `aw-sign-matrix` | A, B | `/v1/public/compatibility/matrix` |
 | `aw-synastry-score` | A, B | `/v1/public/synastry` |
-| `aw-chinese-sign` | A, C | `/v1/chinese/zodiac/animal` + `/v1/public/chinese/zodiac/texts` |
+| `aw-chinese-sign` | A, B | `/v1/public/chinese/zodiac/animal` + `/v1/public/chinese/zodiac/texts` |
 
 `aw-aspect-grid` is about 560 px wide at its own size; in a narrower column it scales down and the orb labels get small. Add `scroll` to keep it at full size with horizontal scrolling instead.
 
-Common attributes: `lang` (21 languages, falls back to the page's `<html lang>`), `theme` (`light`, `dark`), `size`. Theme with CSS custom properties: `--aw-accent`, `--aw-fg`, `--aw-bg`, `--aw-bg-soft`, `--aw-border`. Each element emits `aw-error` with `{ kind, message }`, where `kind` is `error`, `rate-limited` or `key`.
+Common attributes: `lang` (21 languages, falls back to the page's `<html lang>`), `theme` (`light`, `dark`), `size`. Theme with CSS custom properties: `--aw-accent`, `--aw-fg`, `--aw-bg`, `--aw-bg-soft`, `--aw-border`, and `--aw-chart-bg` for the chart background (transparent by default). Each element emits `aw-error` with `{ kind, message }`, where `kind` is `error`, `rate-limited` or `key`.
 
 ## License
 

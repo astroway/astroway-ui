@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-alpha.2
+
+- `aw-chinese-sign` needs no key: it reads the new keyless `/v1/public/chinese/zodiac/animal` and only a `date` (add `time` and `timezone-offset` for a birth near Li Chun).
+- Chart backgrounds (moon phase, aspect grid) are transparent, so `theme="dark"` no longer leaves a black square on a page of another colour; set `--aw-chart-bg` to paint one.
+- `@astroway/ui/package.json` is exported, for tools that read the installed version.
+
 ## 0.1.0-alpha.1
 
 - The rate-limited state shows how long to wait: read from `Retry-After`, or from the API's own message when a proxy drops the header.

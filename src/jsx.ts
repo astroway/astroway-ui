@@ -21,7 +21,7 @@ declare module 'react' {
       'aw-natal-wheel': Base & Birth & { 'show-aspects'?: boolean | string };
       'aw-aspect-grid': Base & Birth & { scroll?: boolean | string };
       'aw-planet-table': Base & Birth;
-      'aw-chinese-sign': Base & Birth;
+      'aw-chinese-sign': Base & { date?: string; time?: string; 'timezone-offset'?: Num };
       'aw-moon-phase': Base & { date?: string; 'show-label'?: boolean | string };
       'aw-planet-of-day': Base & { date?: string };
       'aw-horoscope': Base & { sign?: string; period?: 'daily' | 'weekly' | 'monthly'; date?: string };

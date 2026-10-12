@@ -1,5 +1,4 @@
 import { AwElement, escapeHtml, type ApiRequest, define } from './base.ts';
-import { CHART_ATTRIBUTES, chartRequest } from './chart-request.ts';
 
 interface ChineseSign {
   animal: string; animalName?: string; glyph: string; element: { fixed: string; fixedName?: string; yin: boolean };
@@ -7,18 +6,24 @@ interface ChineseSign {
 }
 
 /**
- * <aw-chinese-sign key="pk_..." date=... latitude=... longitude=...>
- * Layer C for the animal (POST /v1/chinese/zodiac/animal needs a key; the solar year turns at Lichun, not on 1 January),
- * then the keyless texts from /v1/public/chinese/zodiac/texts.
+ * <aw-chinese-sign date="1990-05-15" [time] [timezone-offset]>. Layers A and B: the animal from
+ * /v1/public/chinese/zodiac/animal, then the reading from /v1/public/chinese/zodiac/texts.
  */
 export class AwChineseSign extends AwElement<ChineseSign> {
   static get observedAttributes(): string[] {
-    return [...super.observedAttributes, ...CHART_ATTRIBUTES];
+    return [...super.observedAttributes, 'date', 'time', 'timezone-offset'];
   }
 
   protected request(): ApiRequest | null {
-    const body = chartRequest(this);
-    return body ? { layer: 'C', path: '/chinese/zodiac/animal', body } : null;
+    const date = this.getAttribute('date');
+    if (!date) return null;
+    // The year turns at Li Chun (around 4 February), so a clock the page did not give is not invented.
+    const body: Record<string, unknown> = { date };
+    const time = this.getAttribute('time');
+    if (time) body.time = time.length === 5 ? `${time}:00` : time;
+    const tz = Number(this.getAttribute('timezone-offset'));
+    if (this.hasAttribute('timezone-offset') && Number.isFinite(tz)) body.timezoneOffset = tz;
+    return { layer: 'B', path: '/public/chinese/zodiac/animal', body };
   }
 
   protected async fetchData(req: ApiRequest): Promise<{ data: unknown; footer?: string }> {

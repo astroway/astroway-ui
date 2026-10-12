@@ -1,6 +1,6 @@
 {
   "name": "@astroway/ui",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Astrology web components drawn with the same code as the AstroWay API: natal wheel, moon phase and more. Plain custom elements, any framework or none.",
   "type": "module",
   "sideEffects": [
@@ -13,6 +13,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./package.json": "./package.json",
     "./*": {
       "types": "./dist/*.d.ts",
       "import": "./dist/*.js"
